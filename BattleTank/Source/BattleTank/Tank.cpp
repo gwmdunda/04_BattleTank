@@ -3,6 +3,8 @@
 #include "Tank.h"
 #include "TankBarrel.h"
 #include "Projectile.h"
+#include "TankAimingComponent.h"
+#include "TankMovementComponent.h"
 
 void ATank::SetBarrelReference(UTankBarrel * BarrelToSet)
 {
@@ -31,6 +33,8 @@ ATank::ATank()
 	PrimaryActorTick.bCanEverTick = false;
 	LastFireTime = -ReloadTimeInSeconds;
 	TankAimingComponent = CreateDefaultSubobject<UTankAimingComponent>(FName("Aiming Component"));
+
+
 }
 
 // Called when the game starts or when spawned

@@ -1,17 +1,22 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "TankPlayerController.h"
-#include "Tank.h"
+#include "TankAimingComponent.h"
 ATankPlayerController::ATankPlayerController()
 {
 	PrimaryActorTick.bCanEverTick = true;
+	//auto AimingComponent = GetControlledTank()->FindComponentByClass<UTankAimingComponent>();
+	//if (AimingComponent)
+	//{
+	//	FoundAimingComponent(AimingComponent);
+	//}
 }
 
 
 void ATankPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
-	Player = GetPawn();
+
 }
 
 void ATankPlayerController::Tick(float DeltaTime)
@@ -20,19 +25,16 @@ void ATankPlayerController::Tick(float DeltaTime)
 	AimTowardsCrosshair();
 }
 
-ATank* ATankPlayerController::GetControlledTank() const
-{
-	return Cast<ATank>(GetPawn());
-}
+
 
 void ATankPlayerController::AimTowardsCrosshair()
 {
-	if(!GetControlledTank()){ return; }
+	if(!GetPawn()){ return; }
 	FVector HitLocation;
 	//UE_LOG(LogTemp, Warning, TEXT("HitLocation: %s"),HitLocation.ToString())
 	if (GetSightRayHitLocation(HitLocation))
 	{
-		GetControlledTank()->AimAt(HitLocation);
+		GetPawn()->FindComponentByClass<UTankAimingComponent>()->AimAt(HitLocation);
 	}
 }
 

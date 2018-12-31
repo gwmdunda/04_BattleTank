@@ -4,6 +4,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "TankBarrel.h"
 #include "Turret.h"
+#include "Projectile.h"
 
 // Sets default values for this component's properties
 UTankAimingComponent::UTankAimingComponent()
@@ -16,18 +17,22 @@ UTankAimingComponent::UTankAimingComponent()
 }
 
 
-void UTankAimingComponent::SetBarrelReference(UTankBarrel * BarrelToSet)
+
+// Called when the game starts
+void UTankAimingComponent::Initialise(UTankBarrel* BarrelToSet, UTurret* TurretToSet)
 {
+	Turret = TurretToSet;
 	Barrel = BarrelToSet;
 }
 
-void UTankAimingComponent::SetTurretReference(UTurret * TurretToSet)
+void UTankAimingComponent::Fire(float LaunchSpeed)
 {
-	Turret = TurretToSet;
+	if (!Barrel) { return; }
+	auto Projectile = GetWorld()->SpawnActor<AProjectile>(ProjectileBlueprint, Barrel->GetSocketLocation(FName("Projectile")), Barrel->GetSocketRotation(FName("Projectile")));
+	Projectile->LaunchProjectile(LaunchSpeed);
 }
-// Called when the game starts
 
-void UTankAimingComponent::AimAt(FVector HitLocation, float LaunchSpeed)
+void UTankAimingComponent::AimAt(FVector HitLocation)
 {
 	//FString OurTankName = GetOwner()->GetName();
 	//FString BarrelLocation = Barrel->GetComponentLocation().ToString();
@@ -47,19 +52,16 @@ void UTankAimingComponent::AimAt(FVector HitLocation, float LaunchSpeed)
 	);
 	if(bHaveAimSolution)
 	{
-		//UE_LOG(LogTemp, Warning, TEXT("Solution is Found! %f"), GetWorld()->GetTimeSeconds())
 		FVector AimDirection = TossVelocity.GetSafeNormal();
 		MoveBarrelTowards(AimDirection);
 		
 	}
-	else
-	{
-		//UE_LOG(LogTemp, Error, TEXT("Solution is Not Found! %f"), GetWorld()->GetTimeSeconds())
-	}
+	
 }
 
 void UTankAimingComponent::MoveBarrelTowards(FVector AimDirection)
 {
+	if (!Barrel || !Turret) { return; }
 	FRotator BarrelRotator = Barrel->GetForwardVector().Rotation();
 	FRotator AimRotator = AimDirection.Rotation();
 	FRotator DeltaRotator = AimRotator - BarrelRotator;

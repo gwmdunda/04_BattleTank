@@ -33,11 +33,14 @@ public:
 	UTankAimingComponent();
 	UFUNCTION(BlueprintCallable, Category = "Setup")
 	void Initialise(UTankBarrel* BarrelToSet, UTurret* TurretToSet);
-	void Fire(float LaunchSpeed);
+	UFUNCTION(BlueprintCallable, Category = "Setup")
+	void Fire();
 private:
 	UTankBarrel* Barrel = nullptr;
 	void MoveBarrelTowards(FVector AimDirection);
 	UTurret* Turret = nullptr;
 	float LaunchSpeed = 10000;
-		
+	float ReloadTimeInSeconds = 3;
+	double LastFireTime;
+
 };

@@ -6,13 +6,6 @@
 
 
 
-/*void ATank::Fire()
-{
-	if (!TankAimingComponent||(GetWorld()->GetTimeSeconds()- LastFireTime< ReloadTimeInSeconds)){ return; }
-	LastFireTime = GetWorld()->GetTimeSeconds();
-	TankAimingComponent->Fire(LaunchSpeed);
-
-}*/
 
 ATank::ATank()
 {

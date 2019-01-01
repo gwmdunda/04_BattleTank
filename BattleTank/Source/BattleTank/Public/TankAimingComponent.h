@@ -42,5 +42,8 @@ private:
 	float LaunchSpeed = 10000;
 	float ReloadTimeInSeconds = 3;
 	double LastFireTime;
-
+	void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction) override;
+	void BeginPlay() override;
+	bool IsBarrelMoving();
+	FVector AimDirection;
 };

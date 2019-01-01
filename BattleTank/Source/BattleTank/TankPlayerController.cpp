@@ -5,18 +5,18 @@
 ATankPlayerController::ATankPlayerController()
 {
 	PrimaryActorTick.bCanEverTick = true;
-	//auto AimingComponent = GetControlledTank()->FindComponentByClass<UTankAimingComponent>();
-	//if (AimingComponent)
-	//{
-	//	FoundAimingComponent(AimingComponent);
-	//}
+
 }
 
 
 void ATankPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
-
+	auto AimingComponent = GetPawn()->FindComponentByClass<UTankAimingComponent>();
+	if (AimingComponent)
+	{
+		FoundAimingComponent(AimingComponent);
+	}
 }
 
 void ATankPlayerController::Tick(float DeltaTime)

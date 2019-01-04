@@ -18,6 +18,9 @@ class BATTLETANK_API ATankPlayerController : public APlayerController
 	bool GetLookDirection(FVector2D ScreenLocation, FVector & LookDirection) const;
 	FVector2D ScreenLocation() const;
 	bool GetLookVectorHitLocation(FVector&, FVector) const;
+	void SetPawn(APawn * InPawn);
+	UFUNCTION()
+	void OnPossedTankDeath();
 public:
 	ATankPlayerController();
 	

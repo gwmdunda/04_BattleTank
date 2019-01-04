@@ -6,6 +6,7 @@
 #include "Turret.h"
 #include "Projectile.h"
 
+
 // Sets default values for this component's properties
 UTankAimingComponent::UTankAimingComponent()
 {
@@ -13,8 +14,6 @@ UTankAimingComponent::UTankAimingComponent()
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
 	
-
-	// ...
 }
 
 
@@ -59,35 +58,60 @@ void UTankAimingComponent::MoveBarrelTowards(FVector AimDirection)
 	FRotator AimRotator = AimDirection.Rotation();
 	FRotator DeltaRotator = AimRotator - BarrelRotator;
 	Barrel->Elevate(DeltaRotator.Pitch);
-	Turret->Rotate(DeltaRotator.Yaw);
+	if (FMath::Abs(DeltaRotator.Yaw) < 180)
+	{
+		Turret->Rotate(DeltaRotator.Yaw);
+	}
+	else
+	{
+		Turret->Rotate(-DeltaRotator.Yaw);
+	}
 
 }
 
 void UTankAimingComponent::Fire()
 {
-	if (FiringStatus == EFiringStatus::Reloading) { return; }
+	if (FiringStatus == EFiringStatus::Reloading || AmmoRemaining == 0) { return; }
 	LastFireTime = GetWorld()->GetTimeSeconds();
 	if (!Barrel && !ProjectileBlueprint) { return; }
 	auto Projectile = GetWorld()->SpawnActor<AProjectile>(ProjectileBlueprint, Barrel->GetSocketLocation(FName("Projectile")), Barrel->GetSocketRotation(FName("Projectile")));
 	if (Projectile)
 	{
-		Projectile->LaunchProjectile(LaunchSpeed);
+		Projectile->LaunchProjectile(LaunchSpeed,DamageIncreaseFactor);
+		--AmmoRemaining;
+		DamageIncreaseFactor = 1;
 	}
+}
+
+EFiringStatus UTankAimingComponent::GetFiringState()
+{
+	return FiringStatus;
 }
 
 void UTankAimingComponent::TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction)
 {
-	if (GetWorld()->GetTimeSeconds() - LastFireTime < ReloadTimeInSeconds)
+	if (AmmoRemaining == 0)
+	{
+		FiringStatus = EFiringStatus::Empty;
+	}
+	else if (GetWorld()->GetTimeSeconds() - LastFireTime < ReloadTimeInSeconds)
 	{
 		FiringStatus = EFiringStatus::Reloading;
 	}
-	else if (IsBarrelMoving())
-	{
-		FiringStatus = EFiringStatus::Aiming;
-	}
 	else
 	{
-		FiringStatus = EFiringStatus::Locked;
+		if (DamageIncreaseFactor < 2.5)
+		{
+			DamageIncreaseFactor = 1+1.5*(GetWorld()->GetTimeSeconds() - LastFireTime)/8;
+		}
+		if (IsBarrelMoving())
+		{
+			FiringStatus = EFiringStatus::Aiming;
+		}
+		else
+		{
+			FiringStatus = EFiringStatus::Locked;
+		}
 	}
 }
 

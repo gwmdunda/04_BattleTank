@@ -20,7 +20,10 @@ class BATTLETANK_API ATankAIController : public AAIController
 	virtual void SetPawn(APawn* InPawn) override;
 	UFUNCTION()
 	void OnPossedTankDeath();
+	float DeathTime;
+	bool IsDeath = false;
+	FVector StartingPosition;
 public:
 	UPROPERTY(EditDefaultsOnly)
-	float AcceptanceRadius = 3000;
+	float AcceptanceRadius = 10000;
 };

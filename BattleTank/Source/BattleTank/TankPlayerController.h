@@ -21,6 +21,12 @@ class BATTLETANK_API ATankPlayerController : public APlayerController
 	void SetPawn(APawn * InPawn);
 	UFUNCTION()
 	void OnPossedTankDeath();
+	float DeathTime;
+	FVector StartingPosition;
+protected:
+	UPROPERTY(BlueprintReadOnly)
+	bool IsDeath = false;
+	
 public:
 	ATankPlayerController();
 	

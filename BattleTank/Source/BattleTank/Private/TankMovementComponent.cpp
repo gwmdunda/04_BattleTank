@@ -40,9 +40,14 @@ void UTankMovementComponent::IntendMoveBackward(float Throw)
 
 void UTankMovementComponent::RequestDirectMove(const FVector& MoveVelocity, bool bForceMaxSpeed)
 {
-	UE_LOG(LogTemp, Warning, TEXT("I am Moving Fool!"))
 	FVector AIForwardIntention = MoveVelocity.GetSafeNormal();
 	FVector TankForwards = GetOwner()->GetActorForwardVector().GetSafeNormal();
-	IntendMoveForward(FVector::DotProduct(AIForwardIntention, TankForwards));
-	IntendTurnRight(FVector::CrossProduct(TankForwards, AIForwardIntention).Z);
+	float result = FVector::DotProduct(AIForwardIntention, TankForwards);
+		if (abs(result) > 0.05)
+		{
+			IntendMoveForward(result);
+			IntendTurnRight(FVector::CrossProduct(TankForwards, AIForwardIntention).Z);
+		}
+		
+	
 }

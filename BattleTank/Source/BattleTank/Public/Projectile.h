@@ -9,6 +9,7 @@
 
 class UParticleSystemComponent;
 class URadialForceComponent;
+class ATank;
 UCLASS()
 class BATTLETANK_API AProjectile : public AActor
 {
@@ -27,9 +28,10 @@ protected:
 public:	
 	// Called every frame
 	
-	void LaunchProjectile(float Speed,float DamageIncreaseFactor);
-
-	
+	void LaunchProjectile(float Speed);
+	void SetShooter(ATank* ShooterTank);
+	ATank* GetShooter();
+	void SetDamage(float Damage);
 	
 	
 private:
@@ -54,5 +56,7 @@ private:
 	float DestroyDelay = 0.01;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Setup")
-	float ProjectileDamage = 20;
+	float ProjectileDamage = 1;
+
+	ATank* Shooter = nullptr;
 };

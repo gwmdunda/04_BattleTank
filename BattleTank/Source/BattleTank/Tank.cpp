@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "Tank.h"
-
+#include "Projectile.h"
 
 
 
@@ -26,9 +26,14 @@ float ATank::TakeDamage(float DamageAmount, FDamageEvent const & DamageEvent, AC
 	int32 DamagePoints = FPlatformMath::RoundToInt(DamageAmount);
 	float DamageToApply= FMath::Clamp(DamagePoints, 0 , CurrentHealth);
 	CurrentHealth -= DamageToApply;
-	if (CurrentHealth <= 0)
+	if (CurrentHealth <= 0 && !IsDeath)
 	{
-		OnDeath.Broadcast();
+			
+			IsDeath = true;
+			Deaths++;
+			ATank* TankCauser = Cast<ATank>(DamageCauser);
+			if (TankCauser) { TankCauser->Kills++; }
+			OnDeath.Broadcast();
 	}
 	return DamageToApply;
 }
@@ -44,4 +49,20 @@ void ATank::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 float ATank::GetHealthPercent() const
 {
 	return (float)CurrentHealth / (float)StartingHealth;
+}
+
+void ATank::Heal()
+{
+	CurrentHealth = StartingHealth;
+	IsDeath = false;
+}
+
+int32 ATank::GetKills()
+{
+	return Kills;
+}
+
+int32 ATank::GetDeaths()
+{
+	return Deaths;
 }

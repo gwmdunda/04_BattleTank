@@ -5,6 +5,8 @@
 #include "TankBarrel.h"
 #include "Turret.h"
 #include "Projectile.h"
+#include "Tank.h"
+#include "Runtime/Engine/Classes/Components/SceneComponent.h"
 
 
 // Sets default values for this component's properties
@@ -26,6 +28,11 @@ void UTankAimingComponent::Initialise(UTankBarrel* BarrelToSet, UTurret* TurretT
 }
 
 
+
+void UTankAimingComponent::ResetAmmo()
+{
+	AmmoRemaining = DefaultAmmo;
+}
 
 void UTankAimingComponent::AimAt(FVector HitLocation)
 {
@@ -77,12 +84,26 @@ void UTankAimingComponent::Fire()
 	auto Projectile = GetWorld()->SpawnActor<AProjectile>(ProjectileBlueprint, Barrel->GetSocketLocation(FName("Projectile")), Barrel->GetSocketRotation(FName("Projectile")));
 	if (Projectile)
 	{
-		Projectile->LaunchProjectile(LaunchSpeed,DamageIncreaseFactor);
+		Projectile->SetShooter(Cast<ATank>(GetOwner()));
+		Projectile->SetDamage(40 * DamageIncreaseFactor);
+		Projectile->LaunchProjectile(LaunchSpeed);
 		--AmmoRemaining;
 		DamageIncreaseFactor = 1;
 	}
 }
 
+void UTankAimingComponent::FireGun()
+{
+	if (GetWorld()->GetTimeSeconds()-LastGunTime< ReloadTimeInSeconds_Gun) { return; }
+	LastGunTime = GetWorld()->GetTimeSeconds();
+	if (!Turret && !ProjectileBlueprint) { return; }
+	auto Projectile = GetWorld()->SpawnActor<AProjectile>(ProjectileBlueprint, Turret->GetSocketLocation(FName("Gun")), Turret->GetSocketRotation(FName("Gun")));
+	if (Projectile)
+	{
+		Projectile->SetShooter(Cast<ATank>(GetOwner()));
+		Projectile->LaunchProjectile(LaunchSpeed);
+	}
+}
 EFiringStatus UTankAimingComponent::GetFiringState()
 {
 	return FiringStatus;
@@ -94,7 +115,7 @@ void UTankAimingComponent::TickComponent(float DeltaTime, enum ELevelTick TickTy
 	{
 		FiringStatus = EFiringStatus::Empty;
 	}
-	else if (GetWorld()->GetTimeSeconds() - LastFireTime < ReloadTimeInSeconds)
+	else if (GetWorld()->GetTimeSeconds() - LastFireTime < ReloadTimeInSeconds_Cannon)
 	{
 		FiringStatus = EFiringStatus::Reloading;
 	}
@@ -102,7 +123,7 @@ void UTankAimingComponent::TickComponent(float DeltaTime, enum ELevelTick TickTy
 	{
 		if (DamageIncreaseFactor < 2.5)
 		{
-			DamageIncreaseFactor = 1+1.5*(GetWorld()->GetTimeSeconds() - LastFireTime)/8;
+			DamageIncreaseFactor = 1+1.5*(GetWorld()->GetTimeSeconds() - LastFireTime)/7;
 		}
 		if (IsBarrelMoving())
 		{
@@ -118,6 +139,7 @@ void UTankAimingComponent::TickComponent(float DeltaTime, enum ELevelTick TickTy
 void UTankAimingComponent::BeginPlay()
 {
 	LastFireTime = 0;
+	LastGunTime = 0;
 }
 
 bool UTankAimingComponent::IsBarrelMoving()

@@ -27,25 +27,32 @@ protected:
 	UPROPERTY(BlueprintReadOnly, Category = "State")
 	EFiringStatus FiringStatus = EFiringStatus::Aiming;
 	UPROPERTY(BlueprintReadOnly, Category = "State")
-	int AmmoRemaining = 50;
+	int DefaultAmmo = 40;
+	UPROPERTY(BlueprintReadOnly, Category = "State")
+	int AmmoRemaining = DefaultAmmo;
 	UPROPERTY(EditDefaultsOnly, Category = "Setup")
 	TSubclassOf<AProjectile> ProjectileBlueprint;
 public:
 	// Sets default values for this component's properties
+	void ResetAmmo();
 	void AimAt(FVector HitLocation);
 	UTankAimingComponent();
 	UFUNCTION(BlueprintCallable, Category = "Setup")
 	void Initialise(UTankBarrel* BarrelToSet, UTurret* TurretToSet);
 	UFUNCTION(BlueprintCallable, Category = "Setup")
 	void Fire();
+	UFUNCTION(BlueprintCallable, Category = "Setup")
+	void FireGun();
 	EFiringStatus GetFiringState();
 private:
 	UTankBarrel* Barrel = nullptr;
 	void MoveBarrelTowards(FVector AimDirection);
 	UTurret* Turret = nullptr;
-	float LaunchSpeed = 40000;
-	float ReloadTimeInSeconds = 4;
+	float LaunchSpeed = 90000;
+	float ReloadTimeInSeconds_Cannon = 4;
+	float ReloadTimeInSeconds_Gun = 0.05;
 	double LastFireTime;
+	double LastGunTime;
 	void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction) override;
 	void BeginPlay() override;
 	bool IsBarrelMoving();

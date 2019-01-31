@@ -3,6 +3,7 @@
 #include "TankPlayerController.h"
 #include "TankAimingComponent.h"
 #include "Tank.h"
+
 ATankPlayerController::ATankPlayerController()
 {
 	PrimaryActorTick.bCanEverTick = true;
@@ -18,12 +19,23 @@ void ATankPlayerController::BeginPlay()
 	{
 		FoundAimingComponent(AimingComponent);
 	}
+	StartingPosition = GetPawn()->GetActorLocation();
 }
 
 void ATankPlayerController::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	AimTowardsCrosshair();
+	if (!IsDeath)
+	{
+		AimTowardsCrosshair();
+	}
+	else if (GetWorld()->GetTimeSeconds() - DeathTime > 5)
+	{
+		IsDeath = false;
+		GetPawn()->SetActorLocation(StartingPosition);
+		Cast<ATank>(GetPawn())->Heal();
+		GetPawn()->FindComponentByClass<UTankAimingComponent>()->ResetAmmo();
+	}
 }
 
 
@@ -97,5 +109,7 @@ void ATankPlayerController::SetPawn(APawn * InPawn)
 
 void ATankPlayerController::OnPossedTankDeath()
 {
-	StartSpectatingOnly();
+	IsDeath = true;
+	DeathTime = GetWorld()->GetTimeSeconds();
+	//StartSpectatingOnly();
 }

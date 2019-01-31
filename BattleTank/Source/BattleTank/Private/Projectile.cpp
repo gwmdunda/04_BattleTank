@@ -8,15 +8,14 @@
 
 void AProjectile::OnHit(UPrimitiveComponent * HitComponent, AActor * OtherActor, UPrimitiveComponent * OtherComponent, FVector NormalImpulse, const FHitResult & Hit)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Im Here"))
+	//UE_LOG(LogTemp, Warning, TEXT("Im Here"))
 	LaunchBlast->Deactivate();
 	ImpactBlast->Activate();
 	ExplosionForce->Activate();
 	ExplosionForce->FireImpulse();
 	SetRootComponent(ImpactBlast);
 	CollisionMesh->DestroyComponent();
-
-	UGameplayStatics::ApplyRadialDamage(this, ProjectileDamage, GetActorLocation(), ExplosionForce->Radius, UDamageType::StaticClass(), TArray<AActor*>());
+	UGameplayStatics::ApplyRadialDamage(this, ProjectileDamage, GetActorLocation(), ExplosionForce->Radius, UDamageType::StaticClass(), TArray<AActor*>(),(AActor*)GetShooter());
 	FTimerHandle Timer;
 	GetWorld()->GetTimerManager().SetTimer(Timer,this,&AProjectile::OnTimerExpire, DestroyDelay, false );
 }
@@ -58,12 +57,27 @@ void AProjectile::BeginPlay()
 
 
 
-void AProjectile::LaunchProjectile(float Speed,float DamageIncreaseFactor)
+void AProjectile::LaunchProjectile(float Speed)
 {
-	ProjectileDamage = ProjectileDamage * DamageIncreaseFactor;
 	ProjectileMovement->SetVelocityInLocalSpace(FVector::ForwardVector*Speed);
 	ProjectileMovement->Activate();
 }
+
+void AProjectile::SetShooter(ATank * ShooterTank)
+{
+	Shooter = ShooterTank;
+}
+
+ATank * AProjectile::GetShooter()
+{
+	return Shooter;
+}
+
+void AProjectile::SetDamage(float Damage)
+{
+	ProjectileDamage = Damage;
+}
+
 
 void AProjectile::OnTimerExpire()
 {
